@@ -1,23 +1,28 @@
+/* eslint-disable no-useless-catch */
 import conf from "../conf/conf";
 import { Client, Account, ID } from "appwrite";
 
 export class AuthService {
   client = new Client();
   account;
-
   constructor() {
     this.client
       .setEndpoint(conf.appwriteUrl)
       .setProject(conf.appwriteProjectId);
     this.account = new Account(this.client);
   }
-
-  async createAccount({ email, password, name }) {
+  async createAccoount({ email, password, name }) {
+    // eslint-disable-next-line no-useless-catch
     try {
-      const userAccount = await this.create(ID.unique(), email, password, name);
+      const userAccount = await this.account.create(
+        ID.unique(),
+        email,
+        password,
+        name
+      );
       if (userAccount) {
         //call another method
-        return this.login({ email, password });
+        return this.login(email, password);
       } else {
         return userAccount;
       }
@@ -25,31 +30,30 @@ export class AuthService {
       throw error;
     }
   }
-
-  async login({ email, password }) {
+  async login(email, password) {
     try {
       return await this.account.createEmailSession(email, password);
     } catch (error) {
       throw error;
     }
   }
-
-  async getCurrentUser() {
+  async getCurrentUser(){
     try {
       return await this.account.get();
     } catch (error) {
-      console.log("Appwrite session :: getCurrentUser :: error", error);
+      console.log("Fuck you!", error)
     }
     return null;
   }
-  async logout() {
+  async logout(){
     try {
       await this.account.deleteSessions();
     } catch (error) {
-      console.log("Appwrite session :: logout :: error", error);
+      throw error;
     }
   }
 }
 
-const authService = new authService();
+const authService = new AuthService();
+
 export default authService;
